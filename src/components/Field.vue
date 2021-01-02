@@ -1,14 +1,20 @@
 <template>
-  <div class="field" :class="{ show: state.displaySlots }">
-    <div class="slots">
-      <!-- <div class="slot" v-for="slot in field.slots" :key="slot.index">
-        <button>Schedule</button>
-      </div> -->
-    </div>
-    <div class="info">
-      {{ field.name }}
-
-      <button @click="toggleSlots()">{{ toggleButtonMessage }}</button>
+  <div
+    class="field"
+    :class="{ mobile: state.isMobile, show: state.displaySlots }"
+  >
+    <div class="card">
+      <div class="info">
+        {{ field.name }}
+      </div>
+      <div class="slots">
+        <div class="slot" v-for="slot in field.slots" :key="slot.index">
+          <button>Schedule</button>
+        </div>
+      </div>
+      <div class="actions">
+        <button @click="toggleSlots()">{{ toggleButtonMessage }}</button>
+      </div>
     </div>
   </div>
 </template>
@@ -20,10 +26,12 @@ import { computed, defineComponent, reactive } from 'vue';
 export default defineComponent({
   name: 'Field',
   props: {
-    field: Field
+    field: Field,
+    mobile: Boolean
   },
-  setup() {
+  setup(props) {
     const state = reactive({
+      isMobile: props.mobile,
       displaySlots: false
     });
 
@@ -45,45 +53,81 @@ export default defineComponent({
   * {
     box-sizing: border-box;
   }
-  width: calc((100vw - 16px) / 2);
   height: 100%;
-  background: yellowgreen;
-  display: flex;
-  transition: width 200ms ease-out;
   padding: 2% 5%;
-  .info {
-    background: red;
+  width: calc((100vw) / 2);
+  font-size: 14px;
+  .card {
+    background: white;
     width: 100%;
-    transition: width 200ms ease-out;
+    height: 100%;
     display: flex;
+    box-shadow: 5px 5px 20px rgba(0,0,0,0.3);
+    border-radius: 20px;
+    overflow: hidden;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
 
-    button {
-      // width: 100px;
+    .info {
+      font-size: 16px
+      height: 100%;
+      transition: all 200ms ease-out;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+    }
+
+
+    .slots {
+      transition: all 200ms ease-out;
+      height: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-around;
+      flex-direction: column;
+      .slot {
+        border: 1px solid red;
+        height: 100%;
+      }
+    }
+
+    .actions {
+      flex-shrink: 0;
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      button {
+        height: 40px;
+        min-width: 100px;
+        color: darkgray;
+        border: 2px solid darkgray;
+        background: transparent;
+        border-radius: 20px;
+        outline: none;
+      }
+
     }
   }
 
-  .slots {
-    background: cyan;
-    transition: width 200ms ease-out;
-    width: 0;
+  &.mobile {
+    padding: 20px;
+    width: calc(100vw);
   }
 
   &.show {
-    transition: width 200ms ease-in;
-    width: calc(100vw - 16px);
-    .info {
-      transition: width 200ms ease-in;
-      background: red;
-      width: 50%;
-    }
+    .card {
+      .info {
+        transition: all 200ms ease-in;
+        height: 80px;
+        flex-shrink: 0;
+      }
 
-    .slots {
-      background: cyan;
-      transition: width 200ms ease-in;
-      width: 50%;
+      .slots {
+        transition: all 200ms ease-in;
+        height: 100%;
+        padding: 5px;
+      }
     }
   }
 }

@@ -2,7 +2,12 @@
   <div id="scheduler" :class="{ mobile: state.isMobile }">
     <div class="slider">
       <div class="container">
-        <Field v-for="field in fields" :key="field.name" :field="field" />
+        <Field
+          v-for="field in fields"
+          :key="field.name"
+          :field="field"
+          :mobile="state.isMobile"
+        />
       </div>
     </div>
   </div>
@@ -35,11 +40,11 @@ export default defineComponent({
     box-sizing: border-box;
   }
 
-  height: calc(100vh - 86px);
+  height: calc(100vh - 60px);
   width: 100%;
   overflow: auto;
   display: grid;
-  grid-template-rows: repeat(auto-fill, 100px) 600px;
+  grid-template-rows: auto 600px auto;
 
   .slider {
     grid-row: 2 / 3;
