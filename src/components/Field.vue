@@ -6,14 +6,27 @@
     <div class="card">
       <div class="info">
         {{ field.name }}
+        <OccupationDisplay
+          :expanded="!state.displaySlots"
+          :occupation="occupation"
+        ></OccupationDisplay>
       </div>
       <div class="slots">
-        <div class="slot" v-for="slot in field.slots" :key="slot.index">
-          <button>Schedule</button>
-        </div>
+        <Slot
+          v-for="slot in field.slots"
+          :key="slot.index"
+          @click="toggleSlot(slot)"
+          :scheduleSlot="slot"
+          :selected="isSelected(slot)"
+          :startTime="props.field.startTime"
+          :slotSize="props.field.slotSize"
+        ></Slot>
       </div>
       <div class="actions">
-        <button @click="toggleSlots()">{{ toggleButtonMessage }}</button>
+        <button v-if="!isThereSelectedSlot" @click="toggleSlots()">
+          {{ toggleButtonMessage }}
+        </button>
+        <button v-if="isThereSelectedSlot" @click="schedule()">Schedule</button>
       </div>
     </div>
   </div>
@@ -21,29 +34,92 @@
 
 <script lang="ts">
 import { Field } from '@/models/field';
+import { ScheduleSlot } from '@/models/schedule-slot';
+import Slot from '@/components/Slot.vue';
+import OccupationDisplay from '@/components/OccupationDisplay.vue';
 import { computed, defineComponent, reactive } from 'vue';
 
+interface StateModel {
+  isMobile: boolean;
+  displaySlots: boolean;
+  selectedSlot?: ScheduleSlot;
+}
 export default defineComponent({
   name: 'Field',
+  components: { Slot, OccupationDisplay },
   props: {
     field: Field,
     mobile: Boolean
   },
   setup(props) {
-    const state = reactive({
+    const state: StateModel = reactive({
       isMobile: props.mobile,
-      displaySlots: false
+      displaySlots: false,
+      selectedSlot: undefined
+    });
+
+    const isThereSelectedSlot = computed(() => {
+      return !!state.selectedSlot;
     });
 
     const toggleButtonMessage = computed(() => {
       return state.displaySlots ? 'Hide slots' : 'Display slots';
     });
 
+    const isSelected = (slot: ScheduleSlot): boolean => {
+      return !!(state.selectedSlot && state.selectedSlot.index === slot.index);
+    };
+
     const toggleSlots = () => {
       state.displaySlots = !state.displaySlots;
     };
 
-    return { state, toggleSlots, toggleButtonMessage };
+    const schedule = () => {
+      if (state.selectedSlot) {
+        alert(`${state.selectedSlot.index} ${state.selectedSlot.duration}`);
+      }
+    };
+
+    const toggleSlot = (slot: ScheduleSlot) => {
+      if (slot.owner) {
+        return;
+      }
+      if (state.selectedSlot === slot) {
+        state.selectedSlot = undefined;
+        return;
+      }
+      state.selectedSlot = slot;
+    };
+
+    const occupation = computed(() => {
+      const slots = props.field?.slots || [];
+      return Math.ceil(
+        (slots.reduce((occ, slot) => {
+          if (slot.owner) {
+            occ++;
+          }
+          return occ;
+        }, 0) /
+          slots.length) *
+          100
+      );
+    });
+
+    return {
+      state,
+      props,
+
+      // methods
+      toggleSlots,
+      toggleSlot,
+      isSelected,
+      schedule,
+
+      // computed
+      isThereSelectedSlot,
+      toggleButtonMessage,
+      occupation
+    };
   }
 });
 </script>
@@ -57,6 +133,18 @@ export default defineComponent({
   padding: 2% 5%;
   width: calc((100vw) / 2);
   font-size: 14px;
+
+  button {
+    height: 40px;
+    min-width: 100px;
+    color: darkgray;
+    border: 2px solid darkgray;
+    background: transparent;
+    border-radius: 20px;
+    outline: none;
+  }
+
+
   .card {
     background: white;
     width: 100%;
@@ -85,10 +173,7 @@ export default defineComponent({
       display: flex;
       justify-content: space-around;
       flex-direction: column;
-      .slot {
-        border: 1px solid red;
-        height: 100%;
-      }
+
     }
 
     .actions {
@@ -97,15 +182,7 @@ export default defineComponent({
       display: flex;
       justify-content: center;
       align-items: center;
-      button {
-        height: 40px;
-        min-width: 100px;
-        color: darkgray;
-        border: 2px solid darkgray;
-        background: transparent;
-        border-radius: 20px;
-        outline: none;
-      }
+
 
     }
   }

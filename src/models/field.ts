@@ -1,17 +1,16 @@
 import { ScheduleSlot } from './schedule-slot';
 
 export class Field {
-  public name: string;
-  public startTime?: Date;
+  public id!: string;
+  public name!: string;
+  public startTime?: number;
   public slotSize?: number;
   public slotNumber?: number;
   public slots?: ScheduleSlot[];
 
   constructor(data = {}) {
-    this.name = 'Field X';
     // set default start time
-    this.startTime = new Date();
-    this.startTime.setHours(8);
+    this.startTime = 8;
 
     // slots default config
     this.slotSize = 60;
