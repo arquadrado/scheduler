@@ -14,21 +14,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
+import { computed, defineComponent, reactive } from 'vue';
 import Field from '@/components/Field.vue';
 import isMobile from '@/helpers/mobile';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'Scheduler',
   components: { Field },
-  props: {
-    fields: Array
-  },
   setup() {
+    const store = useStore();
     const state = reactive({
       isMobile: isMobile()
     });
-    return { state };
+
+    const fields = computed(() => store.getters.fields);
+    return { state, fields };
   }
 });
 </script>

@@ -25,7 +25,7 @@ export class Field {
       for (let i = this.slotNumber; i > 0; i--) {
         this.slots.push(
           new ScheduleSlot({
-            index: this.slotNumber - i
+            index: this.slotNumber - i,
           })
         );
       }

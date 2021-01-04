@@ -38,6 +38,7 @@ import { ScheduleSlot } from '@/models/schedule-slot';
 import Slot from '@/components/Slot.vue';
 import OccupationDisplay from '@/components/OccupationDisplay.vue';
 import { computed, defineComponent, reactive } from 'vue';
+import { useStore } from 'vuex';
 
 interface StateModel {
   isMobile: boolean;
@@ -49,13 +50,14 @@ export default defineComponent({
   components: { Slot, OccupationDisplay },
   props: {
     field: Field,
-    mobile: Boolean
+    mobile: Boolean,
   },
   setup(props) {
+    const store = useStore();
     const state: StateModel = reactive({
       isMobile: props.mobile,
       displaySlots: false,
-      selectedSlot: undefined
+      selectedSlot: undefined,
     });
 
     const isThereSelectedSlot = computed(() => {
@@ -76,7 +78,11 @@ export default defineComponent({
 
     const schedule = () => {
       if (state.selectedSlot) {
-        alert(`${state.selectedSlot.index} ${state.selectedSlot.duration}`);
+        store.dispatch('bookSlot', {
+          fieldId: props.field?.id,
+          slotIndex: state.selectedSlot.index,
+        });
+        state.selectedSlot = undefined;
       }
     };
 
@@ -118,9 +124,9 @@ export default defineComponent({
       // computed
       isThereSelectedSlot,
       toggleButtonMessage,
-      occupation
+      occupation,
     };
-  }
+  },
 });
 </script>
 

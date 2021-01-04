@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Scheduler v-if="fields.length" :fields="fields" />
+    <Scheduler v-if="ready" />
     <span v-else>Loading...</span>
   </div>
 </template>
@@ -13,6 +13,7 @@ import { Field } from '@/models/field';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { ScheduleSlot } from '@/models/schedule-slot';
+import { useStore } from 'vuex';
 
 // With a Field Prototype concept one can create a Field instance for each day
 // Thus allowing for accurate history of bookings
@@ -61,11 +62,15 @@ export default defineComponent({
     Scheduler
   },
   setup() {
-    const fields = ref([] as Field[]);
+    const ready = ref(false);
+    const store = useStore();
+    const setFields = (fields: Field[]) => store.dispatch('setFields', fields);
+
     fetchFields().subscribe(data => {
-      fields.value = [...data];
+      setFields(data);
+      ready.value = true;
     });
-    return { fields };
+    return { ready };
   }
 });
 </script>
