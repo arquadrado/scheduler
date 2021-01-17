@@ -1,6 +1,10 @@
 import { Field } from '@/models/field';
-import { ScheduleSlot } from '@/models/schedule-slot';
 import { createStore } from 'vuex';
+
+interface StateModel {
+  fields: Field[];
+  user: string;
+}
 
 export default createStore({
   state: {
@@ -13,30 +17,28 @@ export default createStore({
     },
   },
   mutations: {
-    SET_FIELDS(state, value) {
+    SET_FIELDS(state: StateModel, value: Field[]) {
       state.fields = value;
     },
-    BOOK_SLOT(state, data) {
+    BOOK_SLOT(state: StateModel, data: { fieldId: string; slotIndex: number }) {
       const field = state.fields.find(
         (field: Field) => field.id === data.fieldId
       );
 
-      console.log(state, data);
+      if (field) {
+        const slot = field.slots.find(slot => slot.index === data.slotIndex);
 
-      if (typeof field !== 'undefined') {
-        const slot = (field as Field).slots?.find(
-          slot => slot.index === data.slotIndex
-        );
-
-        (slot as ScheduleSlot).owner = state.user;
+        if (slot) {
+          slot.owner = state.user;
+        }
       }
     },
   },
   actions: {
-    setFields({ commit }, value) {
+    setFields({ commit }, value: Field[]) {
       commit('SET_FIELDS', value);
     },
-    bookSlot({ commit }, data) {
+    bookSlot({ commit }, data: { fieldId: string; slotIndex: number }) {
       commit('BOOK_SLOT', data);
     },
   },

@@ -1,13 +1,13 @@
 <template>
   <div
     class="field"
-    :class="{ mobile: state.isMobile, show: state.displaySlots }"
+    :class="{ mobile: state.isMobile.value, show: state.displaySlots.value }"
   >
     <div class="card">
       <div class="info">
         {{ field.name }}
         <OccupationDisplay
-          :expanded="!state.displaySlots"
+          :expanded="!state.displaySlots.value"
           :occupation="occupation"
         ></OccupationDisplay>
       </div>
@@ -18,8 +18,8 @@
           @click="toggleSlot(slot)"
           :scheduleSlot="slot"
           :selected="isSelected(slot)"
-          :startTime="props.field.startTime"
-          :slotSize="props.field.slotSize"
+          :startTime="field.startTime"
+          :slotSize="field.slotSize"
         ></Slot>
       </div>
       <div class="actions">
@@ -37,13 +37,13 @@ import { Field } from '@/models/field';
 import { ScheduleSlot } from '@/models/schedule-slot';
 import Slot from '@/components/Slot.vue';
 import OccupationDisplay from '@/components/OccupationDisplay.vue';
-import { computed, defineComponent, reactive } from 'vue';
+import { computed, defineComponent, Ref, ref } from 'vue';
 import { useStore } from 'vuex';
 
 interface StateModel {
-  isMobile: boolean;
-  displaySlots: boolean;
-  selectedSlot?: ScheduleSlot;
+  isMobile: Ref<boolean>;
+  displaySlots: Ref<boolean>;
+  selectedSlot: Ref<ScheduleSlot>;
 }
 export default defineComponent({
   name: 'Field',
@@ -54,35 +54,39 @@ export default defineComponent({
   },
   setup(props) {
     const store = useStore();
-    const state: StateModel = reactive({
-      isMobile: props.mobile,
-      displaySlots: false,
-      selectedSlot: undefined,
-    });
+
+    const state: StateModel = {
+      isMobile: ref(props.mobile),
+      displaySlots: ref(false),
+      selectedSlot: ref(undefined),
+    };
 
     const isThereSelectedSlot = computed(() => {
-      return !!state.selectedSlot;
+      return !!state.selectedSlot.value;
     });
 
     const toggleButtonMessage = computed(() => {
-      return state.displaySlots ? 'Hide slots' : 'Display slots';
+      return state.displaySlots.value ? 'Hide slots' : 'Display slots';
     });
 
     const isSelected = (slot: ScheduleSlot): boolean => {
-      return !!(state.selectedSlot && state.selectedSlot.index === slot.index);
+      return !!(
+        state.selectedSlot.value &&
+        state.selectedSlot.value.index === slot.index
+      );
     };
 
     const toggleSlots = () => {
-      state.displaySlots = !state.displaySlots;
+      state.displaySlots.value = !state.displaySlots.value;
     };
 
     const schedule = () => {
-      if (state.selectedSlot) {
+      if (state.selectedSlot.value) {
         store.dispatch('bookSlot', {
           fieldId: props.field?.id,
-          slotIndex: state.selectedSlot.index,
+          slotIndex: state.selectedSlot.value.index,
         });
-        state.selectedSlot = undefined;
+        state.selectedSlot.value = undefined;
       }
     };
 
@@ -90,11 +94,12 @@ export default defineComponent({
       if (slot.owner) {
         return;
       }
-      if (state.selectedSlot === slot) {
-        state.selectedSlot = undefined;
+
+      if (state.selectedSlot.value === slot) {
+        state.selectedSlot.value = undefined;
         return;
       }
-      state.selectedSlot = slot;
+      state.selectedSlot.value = slot;
     };
 
     const occupation = computed(() => {

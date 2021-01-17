@@ -3,12 +3,12 @@ import { ScheduleSlot } from './schedule-slot';
 export class Field {
   public id!: string;
   public name!: string;
-  public startTime?: number;
-  public slotSize?: number;
-  public slotNumber?: number;
-  public slots?: ScheduleSlot[];
+  public startTime: number;
+  public slotSize: number;
+  public slotNumber: number;
+  public slots: ScheduleSlot[];
 
-  constructor(data = {}) {
+  constructor(data) {
     // set default start time
     this.startTime = 8;
 
